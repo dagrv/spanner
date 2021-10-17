@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply antialiased text-black;
+@layer base {
+    html, body {
+        @apply w-full h-full;
+    }
+    
+    body {
+        @apply antialiased text-black bg-gray-100 flex items-center justify-center;
+    }
+
+    ::selection {
+        @apply bg-green-500;
+    }
+}
+
+@layer components {
+    .page {
+        width: 210mm;
+        height: 297mm;
+    }
 }
