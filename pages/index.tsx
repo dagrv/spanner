@@ -7,6 +7,21 @@ let numberFormatter = new Intl.NumberFormat(undefined, {
 	minimumFractionDigits: 2
 })
 
+interface Item {
+	description: string
+	units: number
+	price: number
+	vat: number
+}
+
+interface Invoice {
+	items: Item[]
+}
+
+function total(items: Invoice['items']) {
+	return items.reduce((sum, item) => sum + item.price * item.units * (1 + item.vat), 0) / 100
+}
+
 export default function Invoice() {
 	let data = {
 		number: '00014',
@@ -21,7 +36,7 @@ export default function Invoice() {
 		},
 		client: {
 			name: 'Random Inc.',
-			address: '32 rue du Fontaine, 33000 Bordeaux'
+			address: '32 rue de la Fontaine, 33000 Bordeaux'
 		},
 		dates: {
 			issue: new Date(),
@@ -29,9 +44,19 @@ export default function Invoice() {
 		items: [
 			{ id: 1, description: 'Line Item #1', units: 12, price: 4456, vat: 0.19 },
 			{ id: 2, description: 'Line Item #2', units: 5, price: 56444, vat: 0.22 },
-			{ id: 3, description: 'Line Item #3', units: 1, price: 1300, vat: 0.12 },
+			{ id: 3, description: 'Line Item #3', units: 5, price: 56444, vat: 0.22 },
+			{ id: 4, description: 'Line Item #4', units: 10, price: 2300, vat: 0.15 },
 		],
 	}
+
+	let vats = Object.values<{total: number; vat: number}>(
+		data.items.reduce((grouped, item) => {
+			grouped[item.vat] ??= { total: 0, vat: item.vat }
+			grouped[item.vat].total += item.price * item.units * item.vat
+			return grouped
+		}, {})
+	).filter(({total}) => total)
+
 
 	return (
 		<div>
@@ -98,16 +123,18 @@ export default function Invoice() {
 									</tbody>
 
 									<tfoot>
-										<tr>
-											<th className="px-6 py-4 whitespace-nowrap text-md text-right" colSpan={4}>Total</th>
-											<th className="px-6 py-4 whitespace-nowrap text-md text-right tabular-nums">
-												{numberFormatter.format(
-													data.items.reduce((sum, item) => sum + item.price * item.units, 0) / 100
-												)}
-											</th>
-										</tr>
+										{vats.map(({total, vat}) => (
+											<tr key={vat}>
+												<th className="px-6 py-4 whitespace-nowrap text-md text-right"
+													colSpan={4}>
+													VAT ({(vat * 100).toFixed(0)})
+												</th>
+												<th className="px-6 py-4 whitespace-nowrap text-md text-right tabular-nums">
+													{numberFormatter.format(total / 100)}
+												</th>
+											</tr>
+										))}
 									</tfoot>
-
 								</table>
 							</div>
 						</div>
