@@ -6,10 +6,11 @@
     html, body {
         /* @apply w-full h-full; */
         @apply mt-4;
+        @apply mb-4;
     }
     
     body {
-        @apply antialiased text-black bg-gray-100 flex items-center justify-center;
+        @apply antialiased text-black bg-gray-100 p-12 mx-auto;
     }
 
     ::selection {
