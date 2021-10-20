@@ -1,10 +1,11 @@
-import React from 'react'
-import {addDays, format} from 'date-fns'
-import {classNames} from '../utils/class-names'
+import React, { ReactNode } from 'react'
+import { addDays, format, parseISO } from 'date-fns'
+import { classNames } from '../utils/class-names'
+import { Debug } from '../ui/debug'
 
-let numberFormatter = new Intl.NumberFormat('fr', {
+let numberFormatter = new Intl.NumberFormat('en', {
 	style: 'currency',
-	currency: 'Eur',
+	currency: 'USD',
 	minimumFractionDigits: 2
 })
 
@@ -17,18 +18,10 @@ interface Item {
 }
 
 interface Invoice {
-	number: string
-	me: {
-		name: ReactNode
-		address: string
-	},
-	client: {
-		name: string
-		address: string
-	},
-	dates: {
-		issue: Date
-	}
+	number: number
+	me: { name: string; address: string }
+	client: { name: string, address: string }
+	dates: { issue: string }
 	items: Item[]
 }
 
@@ -42,16 +35,16 @@ function chunk<T>(array:T[], n: number): T[][] {
 	});
 }
 
-enum TotalFeautures {
+enum TotalFeatures {
 	None = 1 << 0,
 	IncludingVAT = 1 << 1,
 }
 
-function total(items: Invoice['items'], features: TotalFeautures = TotalFeautures.None) {
+function total(items: Invoice['items'], features: TotalFeatures = TotalFeatures.None) {
 	return items.reduce((sum, item) => {
 		let subtotal = item.price * item.units
 
-		if (features & TotalFeautures.IncludingVAT) {
+		if (features & TotalFeatures.IncludingVAT) {
 			subtotal *= 1 + item.vat
 		}
 
@@ -59,50 +52,59 @@ function total(items: Invoice['items'], features: TotalFeautures = TotalFeauture
 	}, 0)
 }
 
-function BigHeading({data}: {data:Invoice}) {
+function BigHeading( { invoice } : { invoice: Invoice }) {
 	return (
 	<>
 		<div>
 			<header className="bg-gradient-to-l from-green-600 to-green-700 p-12 flex justify-between items-center">
-				<h1>{data.me.name}</h1>
-				<span className="text-lg text-white font-semibold mt-2">{format(data.dates.issue, 'PPP')}</span>
+				<span className="space-x-1 text-4xl font-bold text-white">
+					<span className="font-semibold mr-2">SPANNER</span>
+					<span className="font-normal">INVOICES</span>
+				</span>
+				
+				<span className="text-2xl text-white font-semibold mt-2">
+					{format(parseISO(invoice.dates.issue), 'PPP')}
+				</span>
 			</header>
 			<div className="bg-gradient-to-l from-yellow-400 via-yellow-500 to-yellow-600 opacity-80 w-full h-3"></div>
 		</div>
 
-		<div className="px-12">
+		<div className="px-12 py-6">
 			<span className="text-2xl">
-				<span className="text-green-800 font-semibold uppercase dark:text-green-500">Invoice </span>
-				<span className="text-gray-800 text-2xl dark:text-white"> #{data.number}</span>
+				<span>
+					<span className="text-green-800 font-semibold uppercase dark:text-green-500">Invoice </span>
+					<span className="text-gray-800 text-2xl dark:text-white"> #{invoice.number.toString().padStart(4, '0')}</span>
+				</span>
 			</span>
 		</div>
 
 		<div className="px-12 flex justify-between">
 			<div>
 			<h3 className="font-semibold text-gray-800 dark:text-white">Information</h3>
-				
 				<table>
-					<tr>
-						<td className="text-gray-800 dark:text-white">Issue Date:</td>
-						<td className="px-2 text-gray-800 dark:text-white">{format(data.dates.issue, 'PPP')}</td>
-					</tr>
-					<tr>
-						<td className="text-gray-800 dark:text-white">Due Date:</td>
-						<td className="px-2 text-gray-800 dark:text-white">
-							<div className="space-x-2">
-								<span>{format(addDays(data.dates.issue, 30), 'PPP')}</span>
-								<span className="text-green-700 font-semibold">(30 Days)</span>
-							</div>
-						</td>
-					</tr>
+					<tbody>
+						<tr>
+							<td>Issue Date:</td>
+							<td className="px-3">{format(parseISO(invoice.dates.issue), 'PPP')}</td>
+						</tr>
+						<tr>
+							<td>Due Date:</td>
+							<td className="px-3">
+								<div className="space-x-3">
+									<span>{format(addDays(parseISO(invoice.dates.issue), 30), 'PPP')}</span> {/* EYE */}
+									<span className="text-green-700 font-semibold">(30 Days)</span>
+								</div>
+							</td>
+						</tr>
+					</tbody>
 				</table>
 			</div>
 
 			<div className="space-2">
-			<h3 className="font-semibold text-gray-800 dark:text-white">Client</h3>
+				<h3 className="font-semibold text-gray-800 dark:text-white">Client</h3>
 				<div className="flex flex-col text-gray-800 dark:text-white">
-					<span>{data.client.name}</span>
-					<span>{data.client.address}</span>
+					<span>{invoice.client.name}</span>
+					<span>{invoice.client.address}</span>
 				</div>
 			</div>
 		</div>
@@ -110,56 +112,65 @@ function BigHeading({data}: {data:Invoice}) {
 	)
 }
 
-function SmallHeading({data}: {data:Invoice}) {
+function SmallHeading( { invoice } : { invoice: Invoice }) {
 	return (
-	<>
-		<div>
-			<header className="bg-gradient-to-l from-green-600 to-green-700 px-12 py-8 flex justify-between items-center">
-				<h1>{data.me.name}</h1>
-				<span className="text-xl text-white font-semibold mt-2">{format(data.dates.issue, 'PPP')}</span>
-			</header>
-			<div className="bg-gradient-to-l from-yellow-400 via-yellow-500 to-yellow-600 opacity-80 w-full h-3"></div>
-		</div>
-	</>
+		<>
+			<div>
+				<header className="bg-gradient-to-l from-green-600 to-green-700 px-12 py-8 flex justify-between items-center">
+					<span className="space-x-1 text-2xl font-bold text-white">
+						<span className="font-semibold">SPANNER</span>
+						<span className="font-normal">INVOICES</span>
+					</span>
+					<span className="text-xl text-white font-semibold">
+						{format(parseISO(invoice.dates.issue), 'PPP')}
+					</span>
+				</header>
+				<div className="bg-gradient-to-l from-yellow-400 via-yellow-500 to-yellow-600 opacity-80 w-full h-3"></div>
+			</div>
+		</>
 	)
 }
 
-function Footer({items}:{items:Invoice['items']}) {
+function Footer({ items } : { items: Invoice['items'] }) {
 	return (
 		<div>
 			<div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 opacity-80 w-full h-3"></div>
 			<div className="bg-gradient-to-r from-green-600 to-green-700 p-12 text-white space-y-8">
 				<div className="flex justify-between text-2xl font-semibold">
 					<span className="text-green-100">TOTAL </span>
-					<span className="text-green-100 tabular-nums">{numberFormatter.format(total(items, TotalFeautures.IncludingVAT) / 100)}</span>
+					<span className="text-green-100 tabular-nums">{numberFormatter.format(total(items, TotalFeatures.IncludingVAT) / 100)}</span>
 				</div>
 
 				<div className="flex justify-between">
 					<div className="space-y-2">
 						<h3 className="font-semibold text-green-100 text-xl">Payment details</h3>
 						<table>
-							<tr>
-								<td className="font-bold">TVA</td>
-								<td className="px-2">FR 0000 000 000</td>
-							</tr>
-							<tr>
-								<td className="font-bold">IBAN</td>
-								<td className="px-2">FR76 0000 0000 0000 0000 0000777</td>
-							</tr>
-							<tr>
-								<td className="font-bold">EMAIL</td>
-								<td className="px-2">help@spanner-invoices.com</td>
-							</tr>
+							<tbody>
+								<tr>
+									<td className="font-bold">TVA</td>
+									<td className="px-2">FR 0000 000 000</td>
+								</tr>
+								<tr>
+									<td className="font-bold">IBAN</td>
+									<td className="px-2">FR76 0000 0000 0000 0000 0000777</td>
+								</tr>
+								<tr>
+									<td className="font-bold">EMAIL</td>
+									<td className="px-2">help@spanner-invoices.com</td>
+								</tr>
+							</tbody>
 						</table>
 					</div>
 
 					<div className="space-y-2">
-						<h3 className="font-semibold text-green-100 text-xl">Payment Terms & Conditions</h3>
+						<h3 className="font-semibold text-green-100 text-xl">Payment Terms and Conditions</h3>
 						<table>
-							<tr>
-								<td className="font-bold">LOCALE</td>
-								<td className="px-2">FR</td>
-							</tr>
+							<tbody>
+								<tr>
+									<td className="font-bold">LOCALE</td>
+									<td className="px-2">FR</td>
+								</tr>
+							</tbody>
 						</table>
 					</div>
 				</div>
@@ -220,17 +231,15 @@ function Items({ items, children }: {items:Invoice['items'], children?: ReactNod
 	)
 }
 
+function randomInt(min: number, max: number) {
+	return (Math.random() * (max - min + 1) | 0)
+}
 
-export default function Invoice() {
-	let data = {
-		number: '00014',
+export function getServerSideProps() {
+	let invoice: Invoice = {
+		number: (Math.random() * 1000) | 0,
 		me: {
-			name: (
-				<span className="spce-x-1 text-4xl font-bold text-white">
-					<span className="font-semibold mr-3">SPANNER</span>
-					<span className="font-normal mr-3">INVOICES</span>
-				</span>
-			),
+			name: 'Spanner Invoices',
 			address: '4 rue du Jardin, 75005 Paris'
 		},
 		client: {
@@ -238,40 +247,48 @@ export default function Invoice() {
 			address: '32 rue de la Fontaine, 33000 Bordeaux'
 		},
 		dates: {
-			issue: new Date(),
+			issue: new Date().toISOString(),
 		},
-		items: [
-			
-		],
+		items: [],
 	}
 
-	for (let i = 0; i < 100; i++) {
-		data.items.push({
+	for (let i = 0; i < 8; i++) {
+		invoice.items.push({
 			id: i + 1,
 			description: `Line Item #${i + 1}`,
-			units: (Math.random() * 20)|0,
-			price: (Math.random() * 50 + 75)|0 * 100,
+			units: randomInt(1, 20),
+			price: randomInt(50, 75) * 100,
 			vat: [0.18, 0.21, 0.12, ][Math.random() * 3 | 0],
 		})
 	}
 
+	return { props: { invoice } }
+}
+
+
+export default function Invoice({ invoice }: { invoice: Invoice }) {
 	let vats = Object.values<{ total: number; vat: number }>(
-		data.items.reduce((grouped, item) => {
+		invoice.items.reduce((grouped, item) => {
 			grouped[item.vat] = grouped[item.vat] || { total: 0, vat: item.vat }
 			grouped[item.vat].total += item.price * item.units * item.vat
 			return grouped
 		}, {})
-	).filter(({ total }) => total)
+	)
+	.filter(({ total }) => total)
+	.sort((a, z) => a.vat - z.vat)
+
+	//let pages = [invoice.items]
+
+	let pages = chunk(invoice.items, 3)
 
 	return (
-		<div className="space-y-8 print:space-y-0">
-			{chunk(data.items, 9).map((items, pageIndex, list) => {
-				return ( 
+		<div className="space-y-8 print:space-y-0 w-full p-12 print:p-0">
+			{pages.map((items, pageIndex) => (
 				<div className="bg-white dark:bg-gray-900 page shadow rounded-lg overflow-hidden print:rounded-none print:space-y-12 space-y-8 flex flex-col">	
-					{pageIndex === 0 ? <BigHeading data={data} /> : <SmallHeading data={data} />}
-
-					<div className="flex flex-col flex-1">
-						{pageIndex === list.length-1? (
+					{pageIndex === 0 ? <BigHeading invoice={invoice} /> : <SmallHeading invoice={invoice} />}
+					<div className="flex flex-col flex-1 relative">
+						<FitContent>
+						{pageIndex === pages.length - 1 ? (
 							<Items items={items}>
 								<tfoot>
 									{ vats.length > 0 && (
@@ -281,7 +298,7 @@ export default function Invoice() {
 												Subtotal
 											</th>
 											<th className="px-6 py-2 whitespace-nowrap text-base text-right tabular-nums border-b border-t">
-												{numberFormatter.format(total(data.items) / 100)}
+												{numberFormatter.format(total(invoice.items) / 100)}
 											</th>
 										</tr>
 									)}
@@ -304,21 +321,46 @@ export default function Invoice() {
 											TOTAL
 										</th>
 										<th className="px-6 py-2 whitespace-nowrap text-base text-right tabular-nums border-b border-t">
-											{numberFormatter.format(total(data.items, TotalFeautures.IncludingVAT) / 100)}
+											{numberFormatter.format(total(invoice.items, TotalFeatures.IncludingVAT) / 100)}
 										</th>
 									</tr>
 								</tfoot>
 							</Items>
 						): (
-							<Items items={items} />
+							<>
+								<Items items={items} />
+								<div className="flex justify-end my-2 mx-6 p-2">
+									<div className="rounded-lg border overflow-hidden">
+										<table>
+											<tbody>
+												<tr className="odd:bg-white even:bg-gray-50">
+													<th scope="col" className="px-4 py-2 text-right text-xs font-medium text-gray-600">
+														Subtotal on this page
+													</th>
+													<td className="px-4 py-2 whitespace-nowrap text-sm text-gray-600 text-right">
+														{ numberFormatter.format(total(items) / 100) }
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</>
 						)}
+						</FitContent>
 					</div>
-					{pageIndex === list.length -1 ? <Footer items={data.items} /> :(
-						<div className="flex items-center justify-evenly px-10 py-3 text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-200 text-sm">{pageIndex + 1} / {list.length}</div>
+					{pageIndex === pages.length -1 ? <Footer items={invoice.items} /> :(
+						<div className="flex items-center justify-evenly px-10 py-3 text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-200 text-sm">{pageIndex + 1} / {pages.length}</div>
 					)}
 				</div>
-				)
-			})}
+			))}
 		</div>
 	)
 }
+
+function FitContent({ children }: { children:ReactNode }) {
+	return <div ref={(element) => {
+		//console.log(element);
+	}} />
+}
+
