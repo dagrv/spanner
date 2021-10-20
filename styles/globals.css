@@ -4,13 +4,21 @@
 
 @layer base {
     html, body {
-        /* @apply w-full h-full; */
-        @apply mt-4;
-        @apply mb-4;
+        @apply w-full h-full;
     }
     
     body {
-        @apply antialiased text-black bg-gray-100 p-12 mx-auto;
+        @apply antialiased text-black dark:bg-black dark:text-white bg-gray-100 p-12 mx-auto;
+    }
+
+    @page {
+        size: A4;
+    }
+
+    @media print {
+        html, body {
+            @apply !m-0 !p-0 !bg-white;
+        }
     }
 
     ::selection {
@@ -22,5 +30,6 @@
     .page {
         width: 210mm;
         height: 297mm;
+        break-after: always;
     }
 }

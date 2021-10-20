@@ -72,26 +72,26 @@ function BigHeading({data}: {data:Invoice}) {
 
 		<div className="px-12">
 			<span className="text-2xl">
-				<span className="text-green-800 font-semibold uppercase">Invoice </span>
-				<span className="text-gray-700 text-2xl"> #{data.number}</span>
+				<span className="text-green-800 font-semibold uppercase dark:text-green-500">Invoice </span>
+				<span className="text-gray-800 text-2xl dark:text-white"> #{data.number}</span>
 			</span>
 		</div>
 
 		<div className="px-12 flex justify-between">
 			<div>
-			<h3 className="font-semibold text-gray-700">Information</h3>
+			<h3 className="font-semibold text-gray-800 dark:text-white">Information</h3>
 				
 				<table>
 					<tr>
-						<td>Issue Date:</td>
-						<td className="px-2">{format(data.dates.issue, 'PPP')}</td>
+						<td className="text-gray-800 dark:text-white">Issue Date:</td>
+						<td className="px-2 text-gray-800 dark:text-white">{format(data.dates.issue, 'PPP')}</td>
 					</tr>
 					<tr>
-						<td>Due Date:</td>
-						<td className="px-2">
+						<td className="text-gray-800 dark:text-white">Due Date:</td>
+						<td className="px-2 text-gray-800 dark:text-white">
 							<div className="space-x-2">
 								<span>{format(addDays(data.dates.issue, 30), 'PPP')}</span>
-								<span className="text-green-700 font-medium">(30 Days)</span>
+								<span className="text-green-700 font-semibold">(30 Days)</span>
 							</div>
 						</td>
 					</tr>
@@ -99,8 +99,8 @@ function BigHeading({data}: {data:Invoice}) {
 			</div>
 
 			<div className="space-2">
-			<h3 className="font-semibold text-gray-700">Client</h3>
-				<div className="flex flex-col">
+			<h3 className="font-semibold text-gray-800 dark:text-white">Client</h3>
+				<div className="flex flex-col text-gray-800 dark:text-white">
 					<span>{data.client.name}</span>
 					<span>{data.client.address}</span>
 				</div>
@@ -170,22 +170,22 @@ function Footer({items}:{items:Invoice['items']}) {
 
 function Items({ items, children }: {items:Invoice['items'], children?: ReactNode}) {
 	return (
-		<table className="min-w-full divide-y divide-gray-200 border-t">
-		<thead className="bg-gray-50">
+		<table className="min-w-full divide-y divide-gray-200 border-t dark:divide-gray-900">
+		<thead className="bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
 			<tr>
-				<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-full whitespace-nowrap">
+				<th scope="col" className="px-12 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider w-full whitespace-nowrap">
 					Description
 				</th>
-				<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+				<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
 					#
 				</th>
-				<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+				<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
 					Unit Price
 				</th>
-				<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+				<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
 					TAX/TVA
 				</th>
-				<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+				<th scope="col" className="px-12 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
 					Subtotal
 				</th>
 			</tr>
@@ -194,10 +194,10 @@ function Items({ items, children }: {items:Invoice['items'], children?: ReactNod
 		<tbody>
 			{items.map((item, lineIdx) => (
 				<tr key={item.id} className={classNames(
-					lineIdx % 2 === 0 ? 'bg-white' : 'bg-gray-100',
-					lineIdx === items.length - 1 && 'border-b'
+					lineIdx % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-100 dark:bg-gray-800',
+					lineIdx === items.length - 1 && 'border-b dark:border-gray-700'
 				)}>
-					<td className="px-6 py-4 whitespace-pre-wrap text-sm font-semibold align-top">
+					<td className="px-12 py-4 whitespace-pre-wrap text-sm font-semibold align-top">
 						{ item.description }
 					</td>
 					<td className="px-6 py-4 whitespace-nowrap text-sm align-top">
@@ -209,7 +209,7 @@ function Items({ items, children }: {items:Invoice['items'], children?: ReactNod
 					<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right align-top">
 						{ (item.vat * 100).toFixed(0) } %
 					</td>
-					<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right tabular-nums align-top">
+					<td className="px-12 py-4 whitespace-nowrap text-sm font-medium text-right tabular-nums align-top">
 						{ numberFormatter.format(item.price * item.units / 100) }
 					</td>
 				</tr>
@@ -264,10 +264,10 @@ export default function Invoice() {
 	).filter(({ total }) => total)
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-8 print:space-y-0">
 			{chunk(data.items, 9).map((items, pageIndex, list) => {
 				return ( 
-				<div className="bg-white page shadow rounded-lg overflow-hidden space-y-8 flex flex-col">	
+				<div className="bg-white dark:bg-gray-900 page shadow rounded-lg overflow-hidden print:rounded-none print:space-y-12 space-y-8 flex flex-col">	
 					{pageIndex === 0 ? <BigHeading data={data} /> : <SmallHeading data={data} />}
 
 					<div className="flex flex-col flex-1">
@@ -313,7 +313,9 @@ export default function Invoice() {
 							<Items items={items} />
 						)}
 					</div>
-					{pageIndex === list.length -1 && <Footer items={data.items} /> }
+					{pageIndex === list.length -1 ? <Footer items={data.items} /> :(
+						<div className="flex items-center justify-evenly px-10 py-3 text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-200 text-sm">{pageIndex + 1} / {list.length}</div>
+					)}
 				</div>
 				)
 			})}
