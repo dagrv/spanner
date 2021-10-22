@@ -252,10 +252,15 @@ export function getServerSideProps() {
 		items: [],
 	}
 
-	for (let i = 0; i < 32; i++) {
+	for (let i = 0; i < 10; i++) {
 		invoice.items.push({
 			id: i + 1,
-			description: `Line Item #${i + 1}`,
+			description: [
+				`Line Item #${i + 1}`,
+				...range(randomInt(0, 3)).map((i) => {
+					return `\tSub Line Item #${i + 1}`
+				})
+			].join('\n'),
 			units: randomInt(1, 20),
 			price: randomInt(50, 75) * 100,
 			vat: [0.18, 0.21, 0.12, ][Math.random() * 3 | 0],
