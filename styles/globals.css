@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 @layer base {
-    html, body {
+    html,
+    body {
         @apply w-full h-full;
     }
     
@@ -13,11 +14,14 @@
 
     @page {
         size: A4;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     @media print {
-        html, body {
-            @apply !m-0 !p-0 !bg-white;
+        html, 
+        body {
+            @apply m-0 p-0 bg-white !important;
         }
     }
 
@@ -30,6 +34,7 @@
     .page {
         width: 210mm;
         height: 297mm;
-        break-after: always;
+        
+        @apply overflow-hidden shadow-lg print:shadow-none rounded-lg print:rounded-none;
     }
 }

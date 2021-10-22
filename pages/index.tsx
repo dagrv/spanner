@@ -1,7 +1,6 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { classNames } from '../utils/class-names'
-import { Debug } from '../ui/debug'
 
 let numberFormatter = new Intl.NumberFormat('en', {
 	style: 'currency',
@@ -54,61 +53,62 @@ function total(items: Invoice['items'], features: TotalFeatures = TotalFeatures.
 
 function BigHeading( { invoice } : { invoice: Invoice }) {
 	return (
-	<>
-		<div>
-			<header className="bg-gradient-to-l from-green-600 to-green-700 p-12 flex justify-between items-center">
-				<span className="space-x-1 text-4xl font-bold text-white">
-					<span className="font-semibold mr-2">SPANNER</span>
-					<span className="font-normal">INVOICES</span>
-				</span>
-				
-				<span className="text-2xl text-white font-semibold mt-2">
-					{format(parseISO(invoice.dates.issue), 'PPP')}
-				</span>
-			</header>
-			<div className="bg-gradient-to-l from-yellow-400 via-yellow-500 to-yellow-600 opacity-80 w-full h-3"></div>
-		</div>
-
-		<div className="px-12 py-6">
-			<span className="text-2xl">
-				<span>
-					<span className="text-green-800 font-semibold uppercase dark:text-green-500">Invoice </span>
-					<span className="text-gray-800 text-2xl dark:text-white"> #{invoice.number.toString().padStart(4, '0')}</span>
-				</span>
-			</span>
-		</div>
-
-		<div className="px-12 flex justify-between">
+		<>
 			<div>
-			<h3 className="font-semibold text-gray-800 dark:text-white">Information</h3>
-				<table>
-					<tbody>
-						<tr>
-							<td>Issue Date:</td>
-							<td className="px-3">{format(parseISO(invoice.dates.issue), 'PPP')}</td>
-						</tr>
-						<tr>
-							<td>Due Date:</td>
-							<td className="px-3">
-								<div className="space-x-3">
-									<span>{format(addDays(parseISO(invoice.dates.issue), 30), 'PPP')}</span> {/* EYE */}
-									<span className="text-green-700 font-semibold">(30 Days)</span>
-								</div>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+				<header className="bg-gradient-to-l from-green-600 to-green-700 p-12 flex justify-between items-center">
+					<span className="space-x-1 text-4xl font-bold text-white">
+						<span className="font-semibold mr-2">SPANNER</span>
+						<span className="font-normal">INVOICES</span>
+					</span>
+					
+					<span className="text-2xl text-white font-semibold mt-2">
+						{format(parseISO(invoice.dates.issue), 'PPP')}
+					</span>
+				</header>
+				<div className="bg-gradient-to-l from-yellow-400 via-yellow-500 to-yellow-600 opacity-80 w-full h-3"></div>
 			</div>
 
-			<div className="space-2">
-				<h3 className="font-semibold text-gray-800 dark:text-white">Client</h3>
-				<div className="flex flex-col text-gray-800 dark:text-white">
-					<span>{invoice.client.name}</span>
-					<span>{invoice.client.address}</span>
-				</div>
+			<div className="px-12 py-8">
+				<span className="text-2xl space-x-3">
+					<span>
+						<span className="text-green-800 font-semibold uppercase dark:text-green-500">Invoice </span>
+						<span className="text-gray-800 text-2xl dark:text-white"> #{invoice.number.toString().padStart(4, '0')}</span>
+					</span>
+				</span>
 			</div>
-		</div>
-	</>
+
+			<div className="px-12 flex justify-between">
+				<div>
+					<h3 className="font-semibold text-gray-800 dark:text-white">Information</h3>
+						
+						<table>
+							<tbody>
+								<tr>
+									<td>Issue Date:</td>
+									<td className="px-3">{format(parseISO(invoice.dates.issue), 'PPP')}</td>
+								</tr>
+								<tr>
+									<td>Due Date:</td>
+									<td className="px-3">
+										<div className="space-x-3">
+											<span>{format(addDays(parseISO(invoice.dates.issue), 30), 'PPP')}</span> {/* EYE */}
+											<span className="text-green-700 font-semibold">(30 Days)</span>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div className="space-2">
+						<h3 className="font-semibold text-gray-800 dark:text-white">Client</h3>
+						<div className="flex flex-col text-gray-800 dark:text-white">
+							<span>{invoice.client.name}</span>
+							<span>{invoice.client.address}</span>
+						</div>
+					</div>
+			</div>
+		</>
 	)
 }
 
@@ -179,53 +179,53 @@ function Footer({ items } : { items: Invoice['items'] }) {
 	)
 }
 
-function Items({ items, children }: {items:Invoice['items'], children?: ReactNode}) {
+function Items({ items, children }: { items: Invoice['items'], children?: ReactNode }) {
 	return (
 		<table className="min-w-full divide-y divide-gray-200 border-t dark:divide-gray-900">
-		<thead className="bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
-			<tr>
-				<th scope="col" className="px-12 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider w-full whitespace-nowrap">
-					Description
-				</th>
-				<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
-					#
-				</th>
-				<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
-					Unit Price
-				</th>
-				<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
-					TAX/TVA
-				</th>
-				<th scope="col" className="px-12 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
-					Subtotal
-				</th>
-			</tr>
-		</thead>
-		
-		<tbody>
-			{items.map((item, lineIdx) => (
-				<tr key={item.id} className={classNames(
-					lineIdx % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-100 dark:bg-gray-800',
-					lineIdx === items.length - 1 && 'border-b dark:border-gray-700'
-				)}>
-					<td className="px-12 py-4 whitespace-pre-wrap text-sm font-semibold align-top">
-						{ item.description }
-					</td>
-					<td className="px-6 py-4 whitespace-nowrap text-sm align-top">
-						{ item.units }
-					</td>
-					<td className="px-6 py-4 whitespace-nowrap font-medium text-sm text-right align-top">
-						{ numberFormatter.format(item.price / 100) }
-					</td>
-					<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right align-top">
-						{ (item.vat * 100).toFixed(0) } %
-					</td>
-					<td className="px-12 py-4 whitespace-nowrap text-sm font-medium text-right tabular-nums align-top">
-						{ numberFormatter.format(item.price * item.units / 100) }
-					</td>
+			<thead className="bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
+				<tr>
+					<th scope="col" className="px-12 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider w-full whitespace-nowrap">
+						Description
+					</th>
+					<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
+						#
+					</th>
+					<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
+						Unit Price
+					</th>
+					<th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
+						TAX/TVA
+					</th>
+					<th scope="col" className="px-12 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider whitespace-nowrap">
+						Subtotal
+					</th>
 				</tr>
-			))}
-		</tbody>
+			</thead>
+			
+			<tbody>
+				{items.map((item, lineIdx) => (
+					<tr key={item.id} className={classNames(
+						lineIdx % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-100 dark:bg-gray-800',
+						lineIdx === items.length - 1 && 'border-b dark:border-gray-700'
+					)}>
+						<td className="px-12 py-4 whitespace-pre-wrap text-sm font-semibold align-top">
+							{ item.description }
+						</td>
+						<td className="px-6 py-4 whitespace-nowrap text-sm align-top">
+							{ item.units }
+						</td>
+						<td className="px-6 py-4 whitespace-nowrap font-medium text-sm text-right align-top">
+							{ numberFormatter.format(item.price / 100) }
+						</td>
+						<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right align-top">
+							{ (item.vat * 100).toFixed(0) } %
+						</td>
+						<td className="px-12 py-4 whitespace-nowrap text-sm font-medium text-right tabular-nums align-top">
+							{ numberFormatter.format(item.price * item.units / 100) }
+						</td>
+					</tr>
+				))}
+			</tbody>
 		{children}
 	</table>
 	)
@@ -252,7 +252,7 @@ export function getServerSideProps() {
 		items: [],
 	}
 
-	for (let i = 0; i < 8; i++) {
+	for (let i = 0; i < 32; i++) {
 		invoice.items.push({
 			id: i + 1,
 			description: `Line Item #${i + 1}`,
@@ -277,55 +277,77 @@ export default function Invoice({ invoice }: { invoice: Invoice }) {
 	.filter(({ total }) => total)
 	.sort((a, z) => a.vat - z.vat)
 
-	//let pages = [invoice.items]
-
-	let pages = chunk(invoice.items, 3)
+	let [perPage, setPerPage] = useState([invoice.items.length])
+	let pages = perPage.map((amount, i) => {
+		let offset = perPage.slice(0, i).reduce((total, amount) => total + amount, 0)
+		return invoice.items.slice(offset, offset + amount)
+	})
 
 	return (
 		<div className="space-y-8 print:space-y-0 w-full p-12 print:p-0">
-			{pages.map((items, pageIndex) => (
-				<div className="bg-white dark:bg-gray-900 page shadow rounded-lg overflow-hidden print:rounded-none print:space-y-12 space-y-8 flex flex-col">	
-					{pageIndex === 0 ? <BigHeading invoice={invoice} /> : <SmallHeading invoice={invoice} />}
-					<div className="flex flex-col flex-1 relative">
-						<FitContent>
-						{pageIndex === pages.length - 1 ? (
-							<Items items={items}>
-								<tfoot>
-									{ vats.length > 0 && (
-									<tr className="border-t-2">
-											<th colSpan={3} />
-											<th className="px-6 py-2 whitespace-nowrap text-base text-right border-l border-r border-b border-t">
-												Subtotal
-											</th>
-											<th className="px-6 py-2 whitespace-nowrap text-base text-right tabular-nums border-b border-t">
-												{numberFormatter.format(total(invoice.items) / 100)}
-											</th>
-										</tr>
-									)}
-							
-									{ vats.map(({total, vat}) => (
-										<tr key={vat}>
-											<th colSpan={3} />
-											<th className="px-6 py-2 whitespace-nowrap text-base text-right border-l border-r">
-												TVA ({(vat * 100).toFixed(0)}%)
-											</th>
-											<th className="px-6 py-2 whitespace-nowrap text-base text-right tabular-nums">
-												{numberFormatter.format(total / 100)}
-											</th>
-										</tr>
-									))}
+			{pages.map((items, pageIdx) => (
+				<div key={pageIdx} className="bg-white page flex flex-col mx-auto">	
+					<div className="space-y-4 pb-12">
+						{pageIdx === 0 ? <BigHeading invoice={invoice} /> : <SmallHeading invoice={invoice} /> }
+					</div>
 
-									<tr>
-										<th colSpan={3} />
-										<th className="px-6 py-2 whitespace-nowrap text-base text-right border-t border-r border-l border-b">
-											TOTAL
-										</th>
-										<th className="px-6 py-2 whitespace-nowrap text-base text-right tabular-nums border-b border-t">
-											{numberFormatter.format(total(invoice.items, TotalFeatures.IncludingVAT) / 100)}
-										</th>
-									</tr>
-								</tfoot>
-							</Items>
+					<div className="flex flex-col flex-1 relative">
+						<FitContent onResize={() => {
+							setPerPage((perPage) => {
+								let clone = perPage.slice()
+								
+								clone[pageIdx] -= 1
+								clone[pageIdx + 1] = clone[pageIdx + 1] || 0
+								clone[pageIdx + 1] += 1
+								
+								return clone
+							})
+						}}>
+
+						{pageIdx === pages.length - 1 ? (
+							<>
+							<Items items={items} />
+								<div className="flex justify-end my-2 mx-6 p-2">
+									<div className="rounded-lg border overflow-hidden">
+										<table>
+											<tbody>
+												{vats.length > 0 && (
+													<tr className="odd:bg-white even:bg-gray-50">
+														<th scope="col"
+															className="px-4 py-2 text-right text-xs font-medium text-gray-800">
+																Subtotal
+														</th>
+														
+														<th className="px-4 py-2 whitespace-nowrap text-sm font-medium tabular-nums">
+															{numberFormatter.format(total(invoice.items) / 100)}
+														</th>
+													</tr>
+												)}
+										
+												{vats.map(({ total, vat }) => (
+													<tr key={vat} className="odd:bg-white even:bg-gray-50">
+														<th scope="col" className="px-4 py-2 text-right text-xs font-medium text-gray-800">
+															TVA ({(vat * 100).toFixed(0)}%)
+														</th>
+														<td className="px-4 py-2 whitespace-nowrap text-sm text-right tabular-nums text-gray-800">
+															{numberFormatter.format(total / 100)}
+														</td>
+													</tr>
+												))}
+
+												<tr className="odd:bg-white even:bg-gray-50">
+													<th scope="col" className="px-4 py-2 text-right text-xs font-medium text-gray-800">
+														Total
+													</th>
+													<td className="px-4 py-2 whitespace-nowrap text-base text-right tabular-nums">
+														{numberFormatter.format(total(invoice.items, TotalFeatures.IncludingVAT) / 100)}
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</>
 						): (
 							<>
 								<Items items={items} />
@@ -334,10 +356,10 @@ export default function Invoice({ invoice }: { invoice: Invoice }) {
 										<table>
 											<tbody>
 												<tr className="odd:bg-white even:bg-gray-50">
-													<th scope="col" className="px-4 py-2 text-right text-xs font-medium text-gray-600">
+													<th scope="col" className="px-4 py-2 text-right text-sm font-medium text-gray-700 uppercase">
 														Subtotal on this page
 													</th>
-													<td className="px-4 py-2 whitespace-nowrap text-sm text-gray-600 text-right">
+													<td className="px-4 py-2 whitespace-nowrap text-md text-gray-800 text-right">
 														{ numberFormatter.format(total(items) / 100) }
 													</td>
 												</tr>
@@ -349,8 +371,16 @@ export default function Invoice({ invoice }: { invoice: Invoice }) {
 						)}
 						</FitContent>
 					</div>
-					{pageIndex === pages.length -1 ? <Footer items={invoice.items} /> :(
-						<div className="flex items-center justify-evenly px-10 py-3 text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-200 text-sm">{pageIndex + 1} / {pages.length}</div>
+
+					{pageIdx === pages.length - 1 ? (
+						<Footer items={invoice.items} />
+					) : (
+						<div className="flex items-center justify-between text-sm border-t border-gray-100 px-12 py-3 bg-gray-50 text-gray-800">
+							<span>Spanner Invoices</span>
+							<span>
+								{pageIdx + 1} of {pages.length}
+							</span>
+						</div>
 					)}
 				</div>
 			))}
@@ -358,9 +388,34 @@ export default function Invoice({ invoice }: { invoice: Invoice }) {
 	)
 }
 
-function FitContent({ children }: { children:ReactNode }) {
-	return <div ref={(element) => {
-		//console.log(element);
-	}} />
-}
+function FitContent({ children, onResize }: { children: ReactNode, onResize: () => void }) {
+	let [availableHeight, setAvailableHeight] = useState<number | null>(null)
 
+	console.log({ availableHeight });
+	
+	if (availableHeight === null) {
+		return (
+			<div className="h-full" ref={(element) => {
+				if (!element) return
+				setAvailableHeight(element.parentElement.clientHeight)
+			}} />
+		) 
+	}
+
+	return (
+		<div 
+			ref={(element) => {
+				if (!element) return
+
+				let height = element.parentElement.scrollHeight
+
+				if (height > availableHeight) {
+					onResize()
+					setAvailableHeight(null)
+				}
+		}}
+		>
+			{children}
+		</div>
+	)
+}
