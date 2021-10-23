@@ -1,6 +1,8 @@
 import React, { ReactNode, useState } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { classNames } from '../utils/class-names'
+import { range } from '../utils/range'
+import Head from 'next'
 
 let numberFormatter = new Intl.NumberFormat('en', {
 	style: 'currency',
@@ -22,10 +24,6 @@ interface Invoice {
 	client: { name: string, address: string }
 	dates: { issue: string }
 	items: Item[]
-}
-
-function range(n: number) {
-	return Array.apply(null, Array(n)).map((x, i) => i);
 }
 
 function chunk<T>(array:T[], n: number): T[][] {
@@ -252,7 +250,7 @@ export function getServerSideProps() {
 		items: [],
 	}
 
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 12; i++) {
 		invoice.items.push({
 			id: i + 1,
 			description: [
@@ -289,25 +287,40 @@ export default function Invoice({ invoice }: { invoice: Invoice }) {
 	})
 
 	return (
+	// <>
+	// 	<Head>
+	// 		<title>Invoice #{invoice.number.toString().padStart(4, '0')}</title>
+	// 	</Head>
+
+	// 	<a download href="/api/generate-pdf" className="print:hidden fixed top-4 right-4 z-10 inline-flex items-center px-2.5 ">
+	// 		Download
+	// 	</a>
+		
 		<div className="space-y-8 print:space-y-0 w-full p-12 print:p-0">
 			{pages.map((items, pageIdx) => (
 				<div key={pageIdx} className="bg-white page flex flex-col mx-auto">	
 					<div className="space-y-4 pb-12">
-						{pageIdx === 0 ? <BigHeading invoice={invoice} /> : <SmallHeading invoice={invoice} /> }
+						{pageIdx === 0 ? (
+							<BigHeading invoice={invoice} /> 
+						) : (
+							<SmallHeading invoice={invoice} />
+						)}
 					</div>
 
 					<div className="flex flex-col flex-1 relative">
-						<FitContent onResize={() => {
-							setPerPage((perPage) => {
-								let clone = perPage.slice()
-								
-								clone[pageIdx] -= 1
-								clone[pageIdx + 1] = clone[pageIdx + 1] || 0
-								clone[pageIdx + 1] += 1
-								
-								return clone
+						<FitContent 
+							onResize={() => {
+								setPerPage((perPage) => {
+									let clone = perPage.slice()
+									
+									clone[pageIdx] -= 1
+									clone[pageIdx + 1] = clone[pageIdx + 1] || 0
+									clone[pageIdx + 1] += 1
+									
+									return clone
 							})
-						}}>
+						}}
+						>
 
 						{pageIdx === pages.length - 1 ? (
 							<>
@@ -395,8 +408,6 @@ export default function Invoice({ invoice }: { invoice: Invoice }) {
 
 function FitContent({ children, onResize }: { children: ReactNode, onResize: () => void }) {
 	let [availableHeight, setAvailableHeight] = useState<number | null>(null)
-
-	console.log({ availableHeight });
 	
 	if (availableHeight === null) {
 		return (
